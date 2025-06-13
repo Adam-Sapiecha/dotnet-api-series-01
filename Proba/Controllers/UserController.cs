@@ -12,47 +12,47 @@ namespace Proba.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ClientController : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public ClientController(AppDbContext context)
+        public UserController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Client
+        // GET: api/User
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Client>>> GetClients()
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _context.Clients.ToListAsync();
+            return await _context.Users.ToListAsync();
         }
 
-        // GET: api/Client/5
+        // GET: api/User/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Client>> GetClient(int id)
+        public async Task<ActionResult<User>> GetUser(int id)
         {
-            var client = await _context.Clients.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
 
-            if (client == null)
+            if (user == null)
             {
                 return NotFound();
             }
 
-            return client;
+            return user;
         }
 
-        // PUT: api/Client/5
+        // PUT: api/User/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutClient(int id, Client client)
+        public async Task<IActionResult> PutUser(int id, User user)
         {
-            if (id != client.IdClient)
+            if (id != user.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(client).State = EntityState.Modified;
+            _context.Entry(user).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace Proba.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ClientExists(id))
+                if (!UserExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace Proba.Controllers
             return NoContent();
         }
 
-        // POST: api/Client
+        // POST: api/User
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Client>> PostClient(Client client)
+        public async Task<ActionResult<User>> PostUser(User user)
         {
-            _context.Clients.Add(client);
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetClient", new { id = client.IdClient }, client);
+            return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
-        // DELETE: api/Client/5
+        // DELETE: api/User/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteClient(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            var client = await _context.Clients.FindAsync(id);
-            if (client == null)
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
             {
                 return NotFound();
             }
 
-            _context.Clients.Remove(client);
+            _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool ClientExists(int id)
+        private bool UserExists(int id)
         {
-            return _context.Clients.Any(e => e.IdClient == id);
+            return _context.Users.Any(e => e.Id == id);
         }
     }
 }

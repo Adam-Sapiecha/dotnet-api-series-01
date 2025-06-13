@@ -16,89 +16,79 @@ public partial class AppDbContext : DbContext
     {
     }
 
-    public virtual DbSet<Client> Clients { get; set; }
+    public virtual DbSet<Event> Events { get; set; }
 
-    public virtual DbSet<ClientTrip> ClientTrips { get; set; }
+    public virtual DbSet<EventParticipant> EventParticipants { get; set; }
 
-    public virtual DbSet<Country> Countries { get; set; }
+    public virtual DbSet<EventTag> EventTags { get; set; }
 
-    public virtual DbSet<Trip> Trips { get; set; }
+    public virtual DbSet<Tag> Tags { get; set; }
+
+    public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Test;Integrated Security=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Client>(entity =>
+        modelBuilder.Entity<Event>(entity =>
         {
-            entity.HasKey(e => e.IdClient).HasName("Client_pk");
+            entity.HasKey(e => e.Id).HasName("Event_pk");
 
-            entity.ToTable("Client");
+            entity.ToTable("Event");
 
-            entity.Property(e => e.Email).HasMaxLength(120);
-            entity.Property(e => e.FirstName).HasMaxLength(120);
-            entity.Property(e => e.LastName).HasMaxLength(120);
-            entity.Property(e => e.Pesel).HasMaxLength(120);
-            entity.Property(e => e.Telephone).HasMaxLength(120);
+            entity.Property(e => e.Date).HasColumnType("datetime");
+            entity.Property(e => e.Description)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.Title)
+                .HasMaxLength(150)
+                .IsUnicode(false);
         });
 
-        modelBuilder.Entity<ClientTrip>(entity =>
+        modelBuilder.Entity<EventParticipant>(entity =>
         {
-            entity.HasKey(e => new { e.IdClient, e.IdTrip }).HasName("Client_Trip_pk");
+            entity.HasKey(e => new { e.UserId, e.EventId }).HasName("EventParticipant_pk");
 
-            entity.ToTable("Client_Trip");
+            entity.ToTable("EventParticipant");
 
-            entity.Property(e => e.PaymentDate).HasColumnType("datetime");
-            entity.Property(e => e.RegisteredAt).HasColumnType("datetime");
-
-            entity.HasOne(d => d.IdClientNavigation).WithMany(p => p.ClientTrips)
-                .HasForeignKey(d => d.IdClient)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("Table_5_Client");
-
-            entity.HasOne(d => d.IdTripNavigation).WithMany(p => p.ClientTrips)
-                .HasForeignKey(d => d.IdTrip)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("Table_5_Trip");
+            entity.Property(e => e.UserId).HasColumnName("User_Id");
+            entity.Property(e => e.EventId).HasColumnName("Event_Id");
         });
 
-        modelBuilder.Entity<Country>(entity =>
+        modelBuilder.Entity<EventTag>(entity =>
         {
-            entity.HasKey(e => e.IdCountry).HasName("Country_pk");
+            entity.HasKey(e => new { e.EventId, e.TagId }).HasName("EventTag_pk");
 
-            entity.ToTable("Country");
+            entity.ToTable("EventTag");
 
-            entity.Property(e => e.Name).HasMaxLength(120);
-
-            entity.HasMany(d => d.IdTrips).WithMany(p => p.IdCountries)
-                .UsingEntity<Dictionary<string, object>>(
-                    "CountryTrip",
-                    r => r.HasOne<Trip>().WithMany()
-                        .HasForeignKey("IdTrip")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("Country_Trip_Trip"),
-                    l => l.HasOne<Country>().WithMany()
-                        .HasForeignKey("IdCountry")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("Country_Trip_Country"),
-                    j =>
-                    {
-                        j.HasKey("IdCountry", "IdTrip").HasName("Country_Trip_pk");
-                        j.ToTable("Country_Trip");
-                    });
+            entity.Property(e => e.EventId).HasColumnName("Event_Id");
+            entity.Property(e => e.TagId).HasColumnName("Tag_Id");
         });
 
-        modelBuilder.Entity<Trip>(entity =>
+        modelBuilder.Entity<Tag>(entity =>
         {
-            entity.HasKey(e => e.IdTrip).HasName("Trip_pk");
+            entity.HasKey(e => e.Id).HasName("Tag_pk");
 
-            entity.ToTable("Trip");
+            entity.ToTable("Tag");
 
-            entity.Property(e => e.DateFrom).HasColumnType("datetime");
-            entity.Property(e => e.DateTo).HasColumnType("datetime");
-            entity.Property(e => e.Description).HasMaxLength(220);
-            entity.Property(e => e.Name).HasMaxLength(120);
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("User_pk");
+
+            entity.ToTable("User");
+
+            entity.Property(e => e.Email)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.Username)
+                .HasMaxLength(50)
+                .IsUnicode(false);
         });
 
         OnModelCreatingPartial(modelBuilder);
